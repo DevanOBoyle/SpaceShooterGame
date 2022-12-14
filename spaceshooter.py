@@ -2,11 +2,14 @@ import sys
 import pygame
 from triangle import Triangle
 from player import Player
+from enemy import Enemy
+from waves.wave1 import Wave_1
 
 blue = (81, 61, 255)
 red = (255, 38, 38)
 black = (0, 0, 0)
 white = (255, 255, 255)
+green = (50, 168, 82)
 
 clock = pygame.time.Clock()
 
@@ -23,6 +26,7 @@ def main():
     player_origin = [[screen_width//2, screen_height - screen_height//5],
                      [screen_width//2-30, screen_height - screen_height//5 + 50],
                      [screen_width//2+30, screen_height - screen_height//5 + 50]]
+
     player = Player(player_origin)
 
     moving_right = False
@@ -30,6 +34,14 @@ def main():
     moving_up = False
     moving_down = False
     shooting = False
+    shoot_time = 0
+    enemy_times = []
+
+    wave1 = Wave_1(screen_width, screen_height)
+    enemy_times.append([0]*wave1.size())
+    #print(enemy_times)
+
+    over = False
 
     while True:
         screen.fill(black)
@@ -44,43 +56,60 @@ def main():
         if moving_down and player.ship.check_lower_boundary(game_frame):
             player.get_ship().move_down(6)
 
-        pygame.draw.polygon(screen, blue, player.ship.get_coords())
+        player.draw_ship(screen, blue)
+        wave1.draw_ship(screen, red, player)
 
-        if shooting:
-            player.shoot()
-            # pygame.time.set_timer(1000)
+        if wave1.all_dead():
+            wave1 = Wave_1(screen_width, screen_height)
 
-        player.update_blasts()
-        for blast in player.get_blasts():
-            pygame.draw.rect(screen, red, blast)
+        if (over == False):
+            shoot_time = player.shoot(shooting, shoot_time)
+            enemy_times[0] = wave1.shoot(enemy_times[0])
+
+        player.update_blasts(screen, green)
+        wave1.update_blasts(screen, red, player)
+
+        if (player.game_over()):
+            font = pygame.font.Font('freesansbold.ttf', 60)
+            game_over_screen = font.render("Game Over", True, red)
+            rect_game_over = game_over_screen.get_rect()
+            rect_game_over.center = (screen_width // 2, screen_height //2)
+            screen.blit(game_over_screen, rect_game_over)
+            over = True
+            moving_right = False
+            moving_left = False
+            moving_up = False
+            moving_down = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    moving_right = True
-                if event.key == pygame.K_LEFT:
-                    moving_left = True
-                if event.key == pygame.K_UP:
-                    moving_up = True
-                if event.key == pygame.K_DOWN:
-                    moving_down = True
-                if event.key == pygame.K_SPACE:
-                    shooting = True
+            if over == False:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        moving_right = True
+                    if event.key == pygame.K_LEFT:
+                        moving_left = True
+                    if event.key == pygame.K_UP:
+                        moving_up = True
+                    if event.key == pygame.K_DOWN:
+                        moving_down = True
+                    if event.key == pygame.K_SPACE:
+                        shooting = True
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_RIGHT:
-                    moving_right = False
-                if event.key == pygame.K_LEFT:
-                    moving_left = False
-                if event.key == pygame.K_UP:
-                    moving_up = False
-                if event.key == pygame.K_DOWN:
-                    moving_down = False
-                if event.key == pygame.K_SPACE:
-                    shooting = False
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_RIGHT:
+                        moving_right = False
+                    if event.key == pygame.K_LEFT:
+                        moving_left = False
+                    if event.key == pygame.K_UP:
+                        moving_up = False
+                    if event.key == pygame.K_DOWN:
+                        moving_down = False
+                    if event.key == pygame.K_SPACE:
+                        shooting = False
+                        shoot_time = -5
 
         pygame.display.update()
         clock.tick(60)

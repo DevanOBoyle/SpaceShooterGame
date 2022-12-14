@@ -13,8 +13,8 @@ class Triangle:
     def get_coords(self):
         return self.coords
 
-    def collidepoint(self, pos):
-        if (pos[0] >= self.x_coords.min() and pos[0] <= self.x_coords.max()) and pos[1] >= self.y_coords.min() and pos[1] <= self.y_coords.max():
+    def collide_point(self, pos):
+        if (pos[0] >= min(self.x_coords) and pos[0] <= max(self.x_coords)) and pos[1] >= min(self.y_coords) and pos[1] <= max(self.y_coords):
             return True
         return False
 
