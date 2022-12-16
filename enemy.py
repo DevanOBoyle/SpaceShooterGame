@@ -13,32 +13,28 @@ class Enemy:
         self.blasts.append(pygame.Rect(
             self.ship.x_shoot-5, self.ship.y_shoot+30, 5, 20))
 
-    def update_blasts(self, screen, color, player):
+    def update_blasts(self, screen, color):
         for blast in self.blasts:
             pygame.Rect.move_ip(blast, 0, 5)
             if blast.top > 790:
                 self.blasts.remove(blast)
             else:
                 pygame.draw.rect(screen, color, blast)
-                if player.ship.collide_point(blast.topleft):
-                    print(player.health)
+
+    def check_collisions(self, player, screen):
+        for blast in self.blasts:
+            if player.ship.collide_point(blast.topleft) or player.ship.collide_point(blast.topright) or player.ship.collide_point(blast.bottomleft) or player.ship.collide_point(blast.bottomright):
+                print(player.health)
+                if (player.parry):
+                    pygame.draw.polygon(screen, (50, 168, 82), player.ship.get_coords())
+                    pygame.display.update()
+                    pygame.time.delay(300)
+                else:
                     player.hit()
-                    self.blasts.remove(blast)
-                elif player.ship.collide_point(blast.topright):
-                    print(player.health)
-                    player.hit()
-                    self.blasts.remove(blast)
-                elif player.ship.collide_point(blast.bottomleft):
-                    print(player.health)
-                    player.hit()
-                    self.blasts.remove(blast)
-                elif player.ship.collide_point(blast.bottomright):
-                    print(player.health)
-                    player.hit()
-                    self.blasts.remove(blast)
+                self.blasts.remove(blast)
+        return None
 
     def shoot(self, shoot_time):
-        #print(self.firerate)
         if shoot_time == 0:
             self.blast()
             shoot_time += 1
@@ -62,8 +58,10 @@ class Enemy:
             elif self.ship.collide_point(blast.bottomright):
                 player.remove_blast(blast)
                 return True
-                
         return False
+
+    def move(self, velocity, width, height, frame):
+        self.ship.move_diamond(velocity, width, height, frame)
 
     def get_ship(self):
         return self.ship

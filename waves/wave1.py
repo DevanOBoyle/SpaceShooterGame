@@ -22,9 +22,15 @@ class Wave_1:
 
         self.times = [len(self.enemies)] * 0
 
-    def update_blasts(self, screen, color, player):
+    def update_blasts(self, screen, color):
         for enemy in self.enemies:
-            enemy.update_blasts(screen, color, player)
+            enemy.update_blasts(screen, color)
+    
+    def check_collisions(self, player, screen):
+        for enemy in self.enemies:
+            blast = enemy.check_collisions(player, screen)
+        if blast != None:
+            return blast
 
     def shoot(self, shoot_times):
         for i in range(len(self.enemies)):
@@ -37,13 +43,20 @@ class Wave_1:
             if enemy.hit(player):
                 self.enemies.remove(enemy)
     
+    def move(self, velocity, width, height, frame):
+        for enemy in self.enemies:
+            enemy.move(velocity, width, height, frame)
+    
     def all_dead(self):
         if len(self.enemies) == 0:
             return True
         return False
             
-    
     def size(self):
         return len(self.enemies)
-
+    '''
+    def remove_blast(self, blast):
+        for enemy in self.enemies:
+            enemy.remove_blast(blast)
+    '''
         

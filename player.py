@@ -10,7 +10,25 @@ class Player:
         self.health = 3
         self.firespeed = -10
         self.firerate = 20
-        self.health = 3
+        self.health = 10
+        self.hp = []
+        self.parry = False
+        self.parry_time = 30
+        self.parry_cooldown = self.parry_time + 10
+        x = 30
+        y = 100
+        for i in range(self.health):
+            self.hp.append(pygame.Rect(x, y, 30, 20))
+            if i == 5:
+                x = 30
+                y += 25
+            else:
+                x += 35
+
+
+    def draw_healthbar(self, screen, color):
+        for i in self.hp:
+            pygame.draw.rect(screen, color, i)
 
     def blast(self):
         self.blasts.append(pygame.Rect(
@@ -38,7 +56,9 @@ class Player:
         return shoot_time
     
     def hit(self):
-        self.health -= 1
+        if self.parry == False:
+            self.health -= 1
+            self.hp.pop()
     
     def game_over(self):
         if self.health == 0:
@@ -56,3 +76,12 @@ class Player:
 
     def draw_ship(self, screen, color):
         pygame.draw.polygon(screen, color, self.ship.get_coords())
+    
+    def draw_ship_parry(self, screen):
+        pygame.draw.polygon(screen, (50, 168, 82), self.ship.get_coords())
+    
+    def parrying(self):
+        self.parry = True
+
+    def drop_parry(self):
+        self.parry = False

@@ -65,3 +65,25 @@ class Triangle:
             self.coords[i][1] += velocity
             self.y_coords[i] = self.coords[i][1]
         self.y_shoot = self.y_coords[0]
+
+    def move_diamond(self, velocity, width, height, frame):
+        if (max(self.x_coords) > width // 2 and min(self.y_coords) > (height// 5 - 50)):
+            if self.check_upper_boundary(frame):
+                self.move_up(velocity)
+            if self.check_right_boundary(frame):
+                self.move_right(velocity)
+        elif (max(self.x_coords) > width // 2 and min(self.y_coords) <= (height// 5 - 50)):
+            if self.check_upper_boundary(frame):
+                self.move_up(velocity)
+            if self.check_left_boundary(frame):
+                self.move_left(velocity)
+        elif (max(self.x_coords) <= width // 2 and min(self.y_coords) <= (height// 5 - 50)):
+            if self.check_lower_boundary(frame):
+                self.move_down(velocity)
+            if self.check_left_boundary(frame):
+                self.move_left(velocity)
+        elif (max(self.x_coords) <= width // 2 and min(self.y_coords) > (height// 5 - 50)):
+            if self.check_lower_boundary(frame):
+                self.move_down(velocity)
+            if self.check_right_boundary(frame):
+                self.move_right(velocity)

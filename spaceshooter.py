@@ -35,6 +35,9 @@ def main():
     moving_down = False
     shooting = False
     shoot_time = 0
+    parry_key_up = True
+    parry_time = 0
+    parry_cooldown = 0
     enemy_times = []
 
     wave1 = Wave_1(screen_width, screen_height)
@@ -56,18 +59,30 @@ def main():
         if moving_down and player.ship.check_lower_boundary(game_frame):
             player.get_ship().move_down(6)
 
+        player.draw_healthbar(screen, red)
         player.draw_ship(screen, blue)
         wave1.draw_ship(screen, red, player)
 
         if wave1.all_dead():
             wave1 = Wave_1(screen_width, screen_height)
 
-        if (over == False):
+        if (not over):
+            wave1.move(1, screen_width, screen_height, game_frame)
             shoot_time = player.shoot(shooting, shoot_time)
             enemy_times[0] = wave1.shoot(enemy_times[0])
 
-        player.update_blasts(screen, green)
-        wave1.update_blasts(screen, red, player)
+            player.update_blasts(screen, green)
+            wave1.update_blasts(screen, red)
+        
+            wave1.check_collisions(player, screen)
+
+        if (parry_time > 0):
+            parry_time -= 1
+        else:
+            player.drop_parry()
+
+        if (player.parry_cooldown > 0):
+            player.parry_cooldown -= 1
 
         if (player.game_over()):
             font = pygame.font.Font('freesansbold.ttf', 60)
@@ -87,29 +102,36 @@ def main():
 
             if over == False:
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         moving_right = True
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         moving_left = True
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_UP or event.key == pygame.K_w:
                         moving_up = True
-                    if event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         moving_down = True
                     if event.key == pygame.K_SPACE:
                         shooting = True
+                    if event.key == pygame.K_RETURN and parry_key_up and parry_cooldown == 0:
+                        player.parrying()
+                        parry_key_up = False
+                        parry_time = player.parry_time
+                        parry_cooldown = player.parry_cooldown
 
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         moving_right = False
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         moving_left = False
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_UP or event.key == pygame.K_w:
                         moving_up = False
-                    if event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         moving_down = False
                     if event.key == pygame.K_SPACE:
                         shooting = False
-                        shoot_time = -5
+                        shoot_time = -10
+                    if event.key == pygame.K_RETURN:
+                        parry_key_up = True
 
         pygame.display.update()
         clock.tick(60)
