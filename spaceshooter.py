@@ -38,11 +38,11 @@ def main():
     parry_key_up = True
     parry_time = 0
     parry_cooldown = 0
+    power_time = 0
     enemy_times = []
 
-    wave1 = Wave_1(screen_width, screen_height)
-    enemy_times.append([0]*wave1.size())
-    #print(enemy_times)
+    wave = Wave_1(screen_width, screen_height)
+    enemy_times.append([0]*wave.size())
 
     over = False
 
@@ -60,29 +60,39 @@ def main():
             player.get_ship().move_down(6)
 
         player.draw_healthbar(screen, red)
+        player.draw_power(screen, blue)
         player.draw_ship(screen, blue)
-        wave1.draw_ship(screen, red, player)
+        wave.draw_ship(screen, red)
 
-        if wave1.all_dead():
-            wave1 = Wave_1(screen_width, screen_height)
+        if wave.all_dead():
+            wave = Wave_1(screen_width, screen_height)
 
         if (not over):
-            wave1.move(1, screen_width, screen_height, game_frame)
-            shoot_time = player.shoot(shooting, shoot_time)
-            enemy_times[0] = wave1.shoot(enemy_times[0])
+            wave.move(1, screen_width, screen_height, game_frame)
+
+            if power_time > 0:
+                player.power_blasting(screen, green)
+                wave.check_power_collision(player)
+                power_time -= 1
+            else:
+                player.power_width = 10
+                shoot_time = player.shoot(shooting, shoot_time)
+            enemy_times[0] = wave.shoot(enemy_times[0])
+
+            wave.hit(player)
 
             player.update_blasts(screen, green)
-            wave1.update_blasts(screen, red)
+            wave.update_blasts(screen, red)
         
-            wave1.check_collisions(player, screen)
+            parry_cooldown = wave.check_collisions(player, screen, parry_cooldown)
 
         if (parry_time > 0):
             parry_time -= 1
         else:
-            player.drop_parry()
+            player.parry = False
 
-        if (player.parry_cooldown > 0):
-            player.parry_cooldown -= 1
+        if (parry_cooldown > 0):
+            parry_cooldown -= 1
 
         if (player.game_over()):
             font = pygame.font.Font('freesansbold.ttf', 60)
@@ -112,11 +122,15 @@ def main():
                         moving_down = True
                     if event.key == pygame.K_SPACE:
                         shooting = True
-                    if event.key == pygame.K_RETURN and parry_key_up and parry_cooldown == 0:
-                        player.parrying()
+                    if event.key == pygame.K_k and parry_key_up and parry_cooldown == 0:
+                        player.parry = True
                         parry_key_up = False
                         parry_time = player.parry_time
                         parry_cooldown = player.parry_cooldown
+                    if event.key == pygame.K_j and len(player.power) == 5:
+                        power_time = player.power_time
+                        player.power.clear()
+
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
@@ -130,7 +144,7 @@ def main():
                     if event.key == pygame.K_SPACE:
                         shooting = False
                         shoot_time = -10
-                    if event.key == pygame.K_RETURN:
+                    if event.key == pygame.K_k:
                         parry_key_up = True
 
         pygame.display.update()

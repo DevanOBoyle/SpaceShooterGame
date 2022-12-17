@@ -21,18 +21,25 @@ class Enemy:
             else:
                 pygame.draw.rect(screen, color, blast)
 
-    def check_collisions(self, player, screen):
+    def check_collisions(self, player, screen, cooldown):
         for blast in self.blasts:
             if player.ship.collide_point(blast.topleft) or player.ship.collide_point(blast.topright) or player.ship.collide_point(blast.bottomleft) or player.ship.collide_point(blast.bottomright):
                 print(player.health)
                 if (player.parry):
-                    pygame.draw.polygon(screen, (50, 168, 82), player.ship.get_coords())
+                    player.parrying(screen)
+                    cooldown = 0
                     pygame.display.update()
                     pygame.time.delay(300)
                 else:
                     player.hit()
                 self.blasts.remove(blast)
-        return None
+        return cooldown
+
+    def check_power_collision(self, player):
+        for coords in self.ship.get_coords():
+            if player.power_blast.collidepoint(coords[0], coords[1]):
+                return True
+        return False
 
     def shoot(self, shoot_time):
         if shoot_time == 0:
@@ -46,16 +53,7 @@ class Enemy:
     
     def hit(self, player):
         for blast in player.get_blasts():
-            if self.ship.collide_point(blast.topleft):
-                player.remove_blast(blast)
-                return True
-            elif self.ship.collide_point(blast.topright):
-                player.remove_blast(blast)
-                return True
-            elif self.ship.collide_point(blast.bottomleft):
-                player.remove_blast(blast)
-                return True
-            elif self.ship.collide_point(blast.bottomright):
+            if self.ship.collide_point(blast.topleft) or self.ship.collide_point(blast.topright) or self.ship.collide_point(blast.bottomleft) or self.ship.collide_point(blast.bottomright):
                 player.remove_blast(blast)
                 return True
         return False

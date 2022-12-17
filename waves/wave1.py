@@ -26,20 +26,28 @@ class Wave_1:
         for enemy in self.enemies:
             enemy.update_blasts(screen, color)
     
-    def check_collisions(self, player, screen):
+    def check_collisions(self, player, screen, cooldown):
         for enemy in self.enemies:
-            blast = enemy.check_collisions(player, screen)
-        if blast != None:
-            return blast
+            cooldown = enemy.check_collisions(player, screen, cooldown)
+        return cooldown
+    
+    def check_power_collision(self, player):
+        for enemy in self.enemies:
+            if enemy.check_power_collision(player):
+                print("DIE")
+                self.enemies.remove(enemy)
 
     def shoot(self, shoot_times):
         for i in range(len(self.enemies)):
             shoot_times[i] = self.enemies[i].shoot(shoot_times[i])
         return shoot_times
     
-    def draw_ship(self, screen, color, player):
+    def draw_ship(self, screen, color):
         for enemy in self.enemies:
             enemy.draw_ship(screen, color)
+    
+    def hit(self, player):
+        for enemy in self.enemies:
             if enemy.hit(player):
                 self.enemies.remove(enemy)
     
@@ -54,9 +62,4 @@ class Wave_1:
             
     def size(self):
         return len(self.enemies)
-    '''
-    def remove_blast(self, blast):
-        for enemy in self.enemies:
-            enemy.remove_blast(blast)
-    '''
         
