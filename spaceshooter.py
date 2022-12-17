@@ -20,7 +20,8 @@ def main():
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Space Game")
     game_frame = [[300, 0], [900, 790]]
-    game_screen = pygame.Rect([300, 0], [600, 790])
+    game_screen = pygame.Rect([300, 0], [600, 5000])
+    background = pygame.image.load('images/Background.png')
 
     # First set of points is where blast is fired from
     player_origin = [[screen_width//2, screen_height - screen_height//5],
@@ -49,6 +50,7 @@ def main():
     while True:
         screen.fill(black)
         pygame.draw.rect(screen, white, game_screen)
+        screen.blit(background, game_screen)
 
         if moving_right and player.ship.check_right_boundary(game_frame):
             player.get_ship().move_right(6)

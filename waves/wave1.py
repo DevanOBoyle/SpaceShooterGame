@@ -34,7 +34,6 @@ class Wave_1:
     def check_power_collision(self, player):
         for enemy in self.enemies:
             if enemy.check_power_collision(player):
-                print("DIE")
                 self.enemies.remove(enemy)
 
     def shoot(self, shoot_times):
