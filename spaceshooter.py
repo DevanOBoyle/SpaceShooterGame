@@ -4,6 +4,7 @@ from triangle import Triangle
 from player import Player
 from enemy import Enemy
 from waves.wave1 import Wave_1
+import math
 
 blue = (81, 61, 255)
 red = (255, 38, 38)
@@ -21,7 +22,8 @@ def main():
     pygame.display.set_caption("Space Game")
     game_frame = [[300, 0], [900, 790]]
     game_screen = pygame.Rect([300, 0], [600, 5000])
-    background = pygame.image.load('images/Background.png')
+    background = pygame.image.load('images/Background.png').convert()
+    background = pygame.transform.scale(background, (600, 12000))
 
     # First set of points is where blast is fired from
     player_origin = [[screen_width//2, screen_height - screen_height//5],
@@ -41,6 +43,10 @@ def main():
     parry_cooldown = 0
     power_time = 0
     enemy_times = []
+    scroll_speed = 1
+    scroll = 0
+    scroll2 = 0
+    bg_height = background.get_height()
 
     wave = Wave_1(screen_width, screen_height)
     enemy_times.append([0]*wave.size())
@@ -50,7 +56,17 @@ def main():
     while True:
         screen.fill(black)
         pygame.draw.rect(screen, white, game_screen)
-        screen.blit(background, game_screen)
+        screen.blit(background, (300, screen_height-bg_height + scroll))
+
+        if (scroll >= bg_height-screen_height and scroll < bg_height):
+            screen.blit(background, (300, -bg_height+scroll2))
+            scroll2 += scroll_speed
+
+        if abs(scroll) >= bg_height:
+            scroll = 0
+            scroll2 = 0
+
+        scroll += scroll_speed
 
         if moving_right and player.ship.check_right_boundary(game_frame):
             player.get_ship().move_right(6)
